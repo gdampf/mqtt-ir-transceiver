@@ -5,8 +5,6 @@
  */
 void MQTTcallback(char* topic, byte* payload, unsigned int length)
 {
-  int i = 0;
-
   char messageBuf[MQTT_MAX_PACKET_SIZE];
   for (unsigned int i = 0; i < length; i++)
   {
@@ -181,7 +179,7 @@ void MQTTcallback(char* topic, byte* payload, unsigned int length)
     sendToDebug(String("*IR: Sending sequence: ")+msgString);
     unsigned int msgLen = msgString.length();
     String allowedChars = String("0123456789,");
-    for (int i=0;i< msgLen;i++)
+    for (unsigned int i=0;i< msgLen;i++)
     {
       if (allowedChars.indexOf(msgString[i])==-1)
       {
@@ -296,7 +294,7 @@ void MQTTcallback(char* topic, byte* payload, unsigned int length)
     {
       unsigned int msgLen = msgString.length();
       String allowedChars = String("0123456789,");
-      for (int i=0;i< msgLen;i++)
+      for (unsigned int i=0;i< msgLen;i++)
       {
         if (allowedChars.indexOf(msgString[i])==-1)
         {
@@ -397,6 +395,11 @@ void MQTTcallback(char* topic, byte* payload, unsigned int length)
       sendToDebug(String("*IR: Send Samsung:")+msgInt+" (bits: "+irBitsInt+")\n");
       irsend.sendSAMSUNG(msgInt, irBitsInt);
     }
+    else if (irTypStr=="PANASONIC")
+    {
+      sendToDebug(String("*IR: Send Panasonic:")+msgInt+" (bits: "+irBitsInt+")\n");
+      irsend.sendPanasonic(irPanasAddrStr.toInt(), msgInt, irBitsInt);
+    }
   }
 
 }
@@ -424,10 +427,20 @@ void connect_to_MQTT()
 
   while (conn_counter > 0)
   {
-    sendToDebug(String("*IR: MQTT user:")+ mqtt_user + "\n");
-    sendToDebug("*IR: MQTT pass: ********\n");
     String topicWill = String(mqtt_prefix)+ SUFFIX_WILL;
-    if (mqttClient.connect((char*) clientName.c_str(), (char*)mqtt_user, (char *)mqtt_pass, topicWill.c_str(), 2, true, "false"))
+    boolean connected = false;
+    if (mqtt_user[0] != '\0')
+    {
+      sendToDebug(String("*IR: MQTT user:")+ mqtt_user + "\n");
+      sendToDebug("*IR: MQTT pass: ********\n");
+      connected = mqttClient.connect((char*) clientName.c_str(), (char*)mqtt_user, (char *)mqtt_pass, topicWill.c_str(), 2, true, "false");
+    }
+    else
+    {
+      sendToDebug("*IR: MQTT No User/PWD\n");
+      connected = mqttClient.connect((char*) clientName.c_str(), topicWill.c_str(), 2, true, "false");
+    }
+    if (connected)
     {
       mqttClient.publish(topicWill.c_str(), "true", true);
       sendToDebug("*IR: Connected to MQTT broker\n");
