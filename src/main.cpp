@@ -228,7 +228,7 @@ void setup(void)
   }
 
   sendToDebug(String("*IR: Connected to ")+String (WiFi.SSID())+"\n");
-  sendToDebug(String("*IR: IP address: ")+String(WiFi.localIP())+"\n");
+  sendToDebug(String("*IR: IP address: ")+WiFi.localIP().toString()+"\n");
 
   clientName += "IRGW-";
   uint8_t mac[6];
@@ -280,7 +280,7 @@ void loop(void)
       if (results.decode_type != UNKNOWN)
       {
         // any other has code and bits
-        sprintf(myValue, "%d", results.value);
+        sprintf(myValue, "%d", (int)results.value);
         mqttClient.publish((char*) myTopic, (char*) myValue );
       }
       else if (rawMode==true)
