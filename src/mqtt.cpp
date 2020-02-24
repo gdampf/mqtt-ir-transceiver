@@ -2,7 +2,7 @@
 
 /* **************************************************************
  * Processing MQTT message
- */
+ ************************************************************** */
 void MQTTcallback(char* topic, byte* payload, unsigned int length)
 {
   char messageBuf[MQTT_MAX_PACKET_SIZE];
