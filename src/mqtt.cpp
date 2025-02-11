@@ -104,7 +104,7 @@ void MQTTcallback(char* topic, byte* payload, unsigned int length)
   }
   else if (topicSuffix==SUFFIX_OTA)
   {
-    t_httpUpdate_return ret = ESPhttpUpdate.update(msgString);
+    t_httpUpdate_return ret = ESPhttpUpdate.update(wifiClient,msgString);
     delay(500);
 
     switch(ret) {
