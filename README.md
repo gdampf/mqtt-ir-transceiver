@@ -63,8 +63,11 @@ For ESP01 following changes have to take place:
 * in platformio.ini change board from d1_mini to esp01_1m
 * in globals.h comment out line "#define DEBUG X"
 
-### Schematic
+### Schematic original
 ![alt text](docs/ir-transceiver_schematic.png "Basic schematic")
+
+### Schematic with oled
+![alt text](docs/ir-transceiver_schematic_oled.png "Basic schematic with oled")
 
 ### BOM
 
@@ -75,27 +78,32 @@ For ESP01 following changes have to take place:
 * R1 - 3.3kΩ
 * R2 - 2.5Ω
 
-### Requirements:
+### Compilation and firmware uploading
 
-* [Visual Studio Code](https://code.visualstudio.com/)
-* [PlatformIO IDE extenstion](https://docs.platformio.org/en/latest/ide/vscode.html)
-* [GIT](https://git-scm.com/downloads)
+[PlatformIO](http://platformio.org/) and [Atom editor](https://atom.io/) with PlatformIO IDE package are required. See [installation procedure](http://docs.platformio.org/en/stable/ide/atom.html#installation)
 
-### 1. Clone the Repository into VS Code
+#### 1. Clone the Repository
 
-In VS Code press F1 enter ''git: clone'' + Enter and insert link to my repository (https://github.com/piotrC4/mqtt-ir-transceiver)
+``` bash
+git clone https://github.com/enc-X/mqtt-ir-transceiver
+```
 
-### 2. Modify platformio.ini (optional)
+or download  [repository](https://github.com/enc-X/mqtt-ir-transceiver/archive/master.zip)
 
-Edit platformio.ini and setup upload_port variable acording to system settings if PlatofmIO can'd identify proper COM port
+#### 2. Import project to PlatformIO
 
-### 3. Build binary file
+Run Atom editor and in **PlatformIO** menu choose option **Open Project folder...**. Select folder with imported project.
 
-In **PlatformIO** menu choose **PROJECT TASKS -> Build**
+#### 3. Setup serial Port
+From the list with files in the left tab open the platformio.ini and change the **upload_port = com12** to the correct port with your ESP8266.
 
-### 4. Upload firmware to ESP8266
+#### 4. Build binary file
 
-Connect ESP to PC via serial adapter. In **PlatformIO** menu choose option **PROJECT TASKS -> Upload**. 
+In **PlatformIO** menu choose option **Build**
+
+#### 5. Upload to ESP8266
+
+Connect ESP to PC via serial adapter. In **PlatformIO** menu choose option **Upload**.
 
 ## Usage
 
@@ -176,6 +184,7 @@ If during boot device have is pressed, device will go to configuration mode.
     <td>Topic: "_mqtt_prefix_/sender/otaURL"<br/>Message: "http://ota.server/firmware.bin"</td>
   </tr>
 </table>
+
 
 ### Device → Controller communication
 
