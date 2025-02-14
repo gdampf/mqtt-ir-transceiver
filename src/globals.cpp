@@ -13,7 +13,7 @@ char mqtt_port[5];
 char mqtt_user[32];
 char mqtt_pass[32];
 char mqtt_prefix[80];
-char mqtt_secure[1];
+char mqtt_secure[2];
 bool mqtt_secure_b;
 int mqtt_port_i;
 

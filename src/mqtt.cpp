@@ -44,9 +44,9 @@ void MQTTcallback(char* topic, byte* payload, unsigned int length)
   }
   else if (topicSuffix==SUFFIX_WIPE)
   {
-    if (SPIFFS.exists("/config.json"))
+    if (LittleFS.exists("/config.json"))
     {
-      SPIFFS.remove("/config.json");
+      LittleFS.remove("/config.json");
     }
     sendToDebug("*IR: Wipe config\n");
   }
@@ -58,7 +58,7 @@ void MQTTcallback(char* topic, byte* payload, unsigned int length)
     if (msgString=="ls")
     {
       replay="";
-      Dir dir = SPIFFS.openDir("/");
+      Dir dir = LittleFS.openDir("/");
       while (dir.next())
       {
         replay+=dir.fileName();
@@ -68,7 +68,7 @@ void MQTTcallback(char* topic, byte* payload, unsigned int length)
         replay+=";";
       }
       FSInfo fs_info;
-      SPIFFS.info(fs_info);
+      LittleFS.info(fs_info);
       replay+="Total bytes=";
       replay+=fs_info.totalBytes;
       replay+=";";
@@ -448,6 +448,7 @@ void connect_to_MQTT()
   if (mqtt_secure_b)
   {
     sendToDebug("*IR: connecting to TLS server:");
+    wifiClientSecure.allowSelfSignedCerts();
     mqttClient.setClient(wifiClientSecure);
   } else {
     sendToDebug("*IR: connecting to nonTLS server:");

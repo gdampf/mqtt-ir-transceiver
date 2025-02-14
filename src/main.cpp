@@ -26,7 +26,7 @@
  *    "_mqtt_prefix_/sender/type(/\d+(/\d+)) msg: "\d+"
  *                - esp8266/02/sender/type[/bits[/panasonic_address]] - type: NEC, RC_5, RC_6, SAMSUNG, SONY
  *    "_mqtt_prefix_/wipe" msg: ".*"
- *                - wpie config file
+ *                - wipe config file
  *
  * module -> broker
  *    "_mqtt_prefix_/receiver/_type_/_bits_"               msg: "\d+"
@@ -45,15 +45,33 @@
 void setup(void)
 {
 
+  // delay for reset button
+  delay(5000);
+
   #ifdef DEBUG
     Serial.begin(CUST_SERIAL_SPEED);
+
+    struct rst_info *rtc_info = system_get_rst_info();
+    Serial.printf("reset reason: %x\n", rtc_info->reason);
+    if (rtc_info->reason == REASON_WDT_RST || rtc_info->reason == REASON_EXCEPTION_RST || rtc_info->reason == REASON_SOFT_WDT_RST) {
+      if (rtc_info->reason == REASON_EXCEPTION_RST) {
+        Serial.printf("Fatal exception (%d):\n", rtc_info->exccause);
+      }
+      Serial.printf("epc1=0x%08x, epc2=0x%08x, epc3=0x%08x, excvaddr=0x%08x, depc=0x%08x\n", rtc_info->epc1, rtc_info->epc2, rtc_info->epc3, rtc_info->excvaddr, rtc_info->depc); //The address of the last crash is printed, which is used to debug garbled output.
+    }
+
+    uint32_t realSize = ESP.getFlashChipRealSize();
+    uint32_t ideSize = ESP.getFlashChipSize();
+    FlashMode_t ideMode = ESP.getFlashChipMode();
+    Serial.printf("Flash real id:   %08X\n", ESP.getFlashChipId());
+    Serial.printf("Flash real size: %u bytes\n\n", realSize);
+    Serial.printf("Flash ide  size: %u bytes\n", ideSize);
+    Serial.printf("Flash ide speed: %u Hz\n", ESP.getFlashChipSpeed());
+    Serial.printf("Flash ide mode:  %s\n", (ideMode == FM_QIO ? "QIO" : ideMode == FM_QOUT ? "QOUT" : ideMode == FM_DIO ? "DIO" : ideMode == FM_DOUT ? "DOUT" : "UNKNOWN"));
   #else
     Serial.begin(CUST_SERIAL_SPEED,SERIAL_8N1,SERIAL_TX_ONLY);
     sendToDebug("*IR: non debug init\n");
   #endif
-
-  // delay for reset button
-  delay(5000);
 
   // Init EEPROM
   EEPROM.begin(sizeof(EEpromData));
@@ -81,14 +99,17 @@ void setup(void)
   display.setFont(ArialMT_Plain_10);
   #endif
 
-  if (SPIFFS.begin())
+  if (LittleFS.begin())
   {
+    // LittleFS.format();
+    // sendToDebug("*IR: format file system\n");
+    
     sendToDebug("*IR: mounted file system\n");
-    if (SPIFFS.exists("/config.json"))
+    if (LittleFS.exists("/config.json"))
     {
       //file exists, reading and loading
       sendToDebug("*IR: reading config file\n");
-      File configFile = SPIFFS.open("/config.json", "r");
+      File configFile = LittleFS.open("/config.json", "r");
       if (configFile)
       {
         sendToDebug("*IR: opened config file\n");
@@ -155,7 +176,7 @@ void setup(void)
   wifiManager.addParameter(&custom_mqtt_pass);
   wifiManager.addParameter(&custom_mqtt_prefix);
 
-  if ( digitalRead(TRIGGER_PIN) == BUTTON_ACTIVE_LEVEL || (!SPIFFS.exists("/config.json")) )
+  if ( digitalRead(TRIGGER_PIN) == BUTTON_ACTIVE_LEVEL || (!LittleFS.exists("/config.json")) )
   {
     // Force enter configuration
     wifiManager.resetSettings();
@@ -169,7 +190,7 @@ void setup(void)
     wifiManager.setDebugOutput(false);
   #endif
   char mySSID[17];
-  char myPASS[7];
+  char myPASS[9];
   sprintf(mySSID,"IRTRANS-00%06X", ESP.getChipId());
   sprintf(myPASS,"00%06X", ESP.getChipId());
   if (!wifiManager.autoConnect(mySSID, myPASS) )
@@ -222,7 +243,7 @@ void setup(void)
     json["mqtt_port"] = mqtt_port;
     json["mqtt_secure"] = mqtt_secure;
 
-    File configFile = SPIFFS.open("/config.json", "w");
+    File configFile = LittleFS.open("/config.json", "w");
     if (configFile)
     {
       char tmpBuff[400];
