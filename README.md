@@ -63,8 +63,11 @@ For ESP01 following changes have to take place:
 * in platformio.ini change board from d1_mini to esp01_1m
 * in globals.h comment out line "#define DEBUG X"
 
-### Schematic
+### Schematic original
 ![alt text](docs/ir-transceiver_schematic.png "Basic schematic")
+
+### Schematic with oled
+![alt text](docs/ir-transceiver_schematic_oled.png "Basic schematic with oled")
 
 ### BOM
 

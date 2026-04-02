@@ -50,7 +50,7 @@
 // Global includes
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
-#include "FS.h"
+#include "LittleFS.h"
 #include <IRremoteESP8266.h>      // https://github.com/markszabo/IRremoteESP8266 (use local copy)
 #include <IRrecv.h>
 #include <IRsend.h>
@@ -77,7 +77,7 @@ extern char mqtt_port[5];
 extern char mqtt_user[32];
 extern char mqtt_pass[32];
 extern char mqtt_prefix[80];
-extern char mqtt_secure[1];
+extern char mqtt_secure[2];
 extern bool mqtt_secure_b;
 extern int mqtt_port_i;
 extern bool buttonState; // State of control button

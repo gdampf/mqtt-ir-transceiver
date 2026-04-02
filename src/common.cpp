@@ -24,13 +24,13 @@ unsigned long StrToUL(String inputString)
  */
 bool writeDataFile(const char* fName, uint16_t sourceArray[], int sourceSize)
 {
-  if (SPIFFS.exists(fName))
+  if (LittleFS.exists(fName))
   {
     sendToDebug("*IR: File exists - removeing\n");
-    SPIFFS.remove(fName);
+    LittleFS.remove(fName);
     sendToDebug("*IR: File remove\n");
   }
-  File file = SPIFFS.open(fName, "w");
+  File file = LittleFS.open(fName, "w");
   if (file)
   {
     sendToDebug("*IR: Start writing to file: ");
@@ -65,13 +65,13 @@ bool writeDataFile(const char* fName, uint16_t sourceArray[], int sourceSize)
  */
 uint16_t readDataFile(char * fName, uint16_t destinationArray[])
 {
-  if (!SPIFFS.exists(fName))
+  if (!LittleFS.exists(fName))
   {
     sendToDebug(String("*IR: File not found: ")+fName+"\n");
 
     return -1;
   }
-  File IRconfigFile=SPIFFS.open(fName,"r");
+  File IRconfigFile=LittleFS.open(fName,"r");
   if (!IRconfigFile)
   {
     sendToDebug(String("*IR: Unable to read file: ")+fName+"\n");
